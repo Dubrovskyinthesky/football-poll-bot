@@ -11,9 +11,10 @@ CHAT_ID = os.environ["CHAT_ID"]
 MY_USER_ID = int(os.environ["MY_USER_ID"])
 
 GAMES = {
-    0: {"day_ru": "Пнд.", "cost": 6000},
-    3: {"day_ru": "Чтв.", "cost": 5400},
-}
+       0: {"day_ru": "Пнд.", "cost": 6000},
+       3: {"day_ru": "Чтв.", "cost": 5400},
+       4: {"day_ru": "ТЕСТ", "cost": 6000},
+   }
 
 MIN_PLAYERS = 10
 CANCEL_TEXT = "Ребят, на сегодня игра не собралась, отменяем"
