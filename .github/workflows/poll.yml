@@ -2,11 +2,9 @@ name: Football Poll
 
    on:
      schedule:
-       # Вторник 12:00 по Самаре (UTC+4) = 08:00 UTC
-       - cron: '0 8 * * 2'
-       # Пятница 12:00 по Самаре (UTC+4) = 08:00 UTC
-       - cron: '0 8 * * 5'
-     workflow_dispatch:  # кнопка ручного запуска для теста
+       - cron: "0 8 * * 2"
+       - cron: "0 8 * * 5"
+     workflow_dispatch:
 
    jobs:
      send-poll:
@@ -15,7 +13,7 @@ name: Football Poll
          - uses: actions/checkout@v4
          - uses: actions/setup-python@v5
            with:
-             python-version: '3.11'
+             python-version: "3.11"
          - run: pip install requests
          - run: python send_poll.py
            env:
