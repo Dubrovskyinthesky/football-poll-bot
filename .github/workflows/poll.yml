@@ -1,21 +1,21 @@
 name: Football Poll
 
-   on:
-     schedule:
-       - cron: "0 8 * * 2"
-       - cron: "0 8 * * 5"
-     workflow_dispatch:
+on:
+  schedule:
+    - cron: "0 8 * * 2"
+    - cron: "0 8 * * 5"
+  workflow_dispatch:
 
-   jobs:
-     send-poll:
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v4
-         - uses: actions/setup-python@v5
-           with:
-             python-version: "3.11"
-         - run: pip install requests
-         - run: python send_poll.py
-           env:
-             BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-             CHAT_ID: ${{ secrets.CHAT_ID }}
+jobs:
+  send-poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - run: python send_poll.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
