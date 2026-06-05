@@ -8,25 +8,20 @@ from zoneinfo import ZoneInfo
 TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
 
-# ====== Настройки игр ======
-# Ключ — день недели, КОГДА БОТ ШЛЁТ ОПРОС:
-# 0=Пн, 1=Вт, 2=Ср, 3=Чт, 4=Пт, 5=Сб, 6=Вс
-# days_ahead — через сколько дней игра
 GAMES = {
-    1: {  # Вторник шлём → игра в четверг
+    1: {
         "day_ru": "Чтв.",
         "location": "Антошка",
         "time": "21:00",
         "days_ahead": 2,
     },
-    4: {  # Пятница шлём → игра в понедельник
+    4: {
         "day_ru": "Пнд.",
         "location": "Революционная",
         "time": "19:30",
         "days_ahead": 3,
     },
 }
-# ===========================
 
 TZ = ZoneInfo("Europe/Samara")
 API = f"https://api.telegram.org/bot{TOKEN}"
@@ -47,13 +42,22 @@ poll_response = requests.post(
     json={
         "chat_id": CHAT_ID,
         "question": question,
-        "options": ["✅", "❌", "❓"],
+        "options": [
+            {"text": "✅"},
+            {"text": "❌"},
+            {"text": "❓"},
+        ],
         "is_anonymous": False,
         "allows_multiple_answers": False,
     },
     timeout=30,
 )
-poll_response.raise_for_status()
+
+if not poll_response.ok:
+    print(f"Telegram ответил ошибкой: {poll_response.status_code}")
+    print(f"Текст ответа: {poll_response.text}")
+    sys.exit(1)
+
 message_id = poll_response.json()["result"]["message_id"]
 print(f"Отправлен опрос: {question} (message_id={message_id})")
 
@@ -70,5 +74,4 @@ pin_response = requests.post(
 if pin_response.ok:
     print("Опрос закреплён")
 else:
-    # Не валим всё, если закрепить не удалось — просто логируем
     print(f"Не удалось закрепить: {pin_response.text}")
