@@ -10,9 +10,10 @@ MY_USER_ID = os.environ["MY_USER_ID"]
 
 # Игры по дню недели (0=Пн, 1=Вт ... 6=Вс)
 GAMES = {
-    0: {"day_ru": "Пнд.", "location": "Революционная", "time": "19:30", "cost": 6000},
-    3: {"day_ru": "Чтв.", "location": "Антошка",       "time": "21:00", "cost": 5400},
-}
+       0: {"day_ru": "Пнд.", "location": "Революционная", "time": "19:30", "cost": 6000},
+       3: {"day_ru": "Чтв.", "location": "Антошка",       "time": "21:00", "cost": 5400},
+       4: {"day_ru": "ТЕСТ", "location": "Тест",          "time": "00:00", "cost": 6000},
+   }
 
 TZ = ZoneInfo("Europe/Samara")
 API = f"https://api.telegram.org/bot{TOKEN}"
