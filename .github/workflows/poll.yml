@@ -19,3 +19,4 @@ jobs:
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          MY_USER_ID: ${{ secrets.MY_USER_ID }}
