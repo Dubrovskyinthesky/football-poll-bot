@@ -5,15 +5,15 @@ import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-TOKEN = os.environ["BOT_TOKEN"]
-MY_USER_ID = os.environ["MY_USER_ID"]
+from common import is_cancelled, notify_cancelled
 
-# Игры по дню недели (0=Пн, 1=Вт ... 6=Вс)
+TOKEN = os.environ["BOT_TOKEN"]
+MY_USER_ID = int(os.environ["MY_USER_ID"])
+
 GAMES = {
-       0: {"day_ru": "Пнд.", "location": "Революционная", "time": "19:30", "cost": 6000},
-       3: {"day_ru": "Чтв.", "location": "Антошка",       "time": "21:00", "cost": 5400},
-       4: {"day_ru": "ТЕСТ", "location": "Тест",          "time": "00:00", "cost": 6000},
-   }
+    0: {"day_ru": "Пнд.", "location": "Революционная", "time": "19:30", "cost": 6000},
+    3: {"day_ru": "Чтв.", "location": "Антошка",       "time": "21:00", "cost": 5400},
+}
 
 TZ = ZoneInfo("Europe/Samara")
 API = f"https://api.telegram.org/bot{TOKEN}"
@@ -25,12 +25,20 @@ if not game:
     print(f"Сегодня {today.strftime('%A')} — не игровой день, выхожу")
     sys.exit(0)
 
+if is_cancelled(API, MY_USER_ID):
+    notify_cancelled(API, MY_USER_ID, "вопрос про игроков")
+    print("Найдена стоп-команда — вопрос организатору отменён")
+    sys.exit(0)
+
 game_label = f"{game['day_ru']} {today.strftime('%d.%m')} {game['location']} {game['time']}"
 message = (
     f"Сегодня игра: {game_label}\n"
     f"Стоимость: {game['cost']} руб.\n\n"
-    f"Сколько в итоге идёт людей (с учётом «плюсов»)?\n"
-    f"Ответь мне числом в этот чат до 18:00 — опубликую расчёт в группу."
+    f"До 18:00 пришли двумя отдельными сообщениями:\n"
+    f"1. Сколько в итоге идёт людей (с учётом «плюсов») — числом.\n"
+    f"2. Номер для перевода — например, +79631166077.\n\n"
+    f"Если пришлёшь несколько раз — возьму последние значения.\n"
+    f"Если игра отменяется — пришли /stop."
 )
 
 response = requests.post(
