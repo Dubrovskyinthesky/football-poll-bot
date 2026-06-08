@@ -5,8 +5,11 @@ import requests
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+from common import is_cancelled, notify_cancelled
+
 TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
+MY_USER_ID = int(os.environ["MY_USER_ID"])
 
 GAMES = {
     1: {
@@ -33,10 +36,14 @@ if not game:
     print(f"Сегодня {today.strftime('%A')} — опрос не запланирован, выхожу")
     sys.exit(0)
 
+if is_cancelled(API, MY_USER_ID):
+    notify_cancelled(API, MY_USER_ID, "публикация опроса")
+    print("Найдена стоп-команда — публикация опроса отменена")
+    sys.exit(0)
+
 game_date = today + timedelta(days=game["days_ahead"])
 question = f"{game['day_ru']} {game_date.strftime('%d.%m')} {game['location']} {game['time']}"
 
-# Отправляем опрос
 poll_response = requests.post(
     f"{API}/sendPoll",
     json={
@@ -61,7 +68,6 @@ if not poll_response.ok:
 message_id = poll_response.json()["result"]["message_id"]
 print(f"Отправлен опрос: {question} (message_id={message_id})")
 
-# Закрепляем опрос
 pin_response = requests.post(
     f"{API}/pinChatMessage",
     json={
