@@ -2,8 +2,8 @@ name: Publish Payment
 
 on:
   schedule:
-    - cron: "0 14 * * 1"
-    - cron: "0 14 * * 4"
+    - cron: "47 11 * * 1"
+    - cron: "47 11 * * 4"
   workflow_dispatch:
 
 jobs:
