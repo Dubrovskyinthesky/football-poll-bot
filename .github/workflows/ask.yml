@@ -2,8 +2,8 @@ name: Ask Organizer
 
 on:
   schedule:
-    - cron: "30 13 * * 1"
-    - cron: "30 13 * * 4"
+    - cron: "13 11 * * 1"
+    - cron: "13 11 * * 4"
   workflow_dispatch:
 
 jobs:
