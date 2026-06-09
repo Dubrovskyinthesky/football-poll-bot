@@ -62,6 +62,34 @@ def normalize_phone(raw):
     return "+" + digits
 
 
+def fetch_private_updates():
+    """Получает только личные сообщения, без шума из групп."""
+    r = requests.get(
+        f"{API}/getUpdates",
+        params={
+            "allowed_updates": '["message"]',
+            "limit": 100,
+        },
+        timeout=30,
+    )
+    if not r.ok:
+        print(f"Не удалось получить обновления: {r.status_code} {r.text}")
+        sys.exit(1)
+    return r.json().get("result", [])
+
+
+def clear_updates_buffer(updates):
+    """Очищает буфер getUpdates, чтобы старые сообщения не путали будущие запуски."""
+    if not updates:
+        return
+    last_id = max(u["update_id"] for u in updates)
+    requests.get(
+        f"{API}/getUpdates",
+        params={"offset": last_id + 1, "limit": 1},
+        timeout=30,
+    )
+
+
 today = datetime.now(TZ)
 game = GAMES.get(today.weekday())
 
@@ -74,18 +102,19 @@ if is_cancelled(API, MY_USER_ID):
     print("Найдена стоп-команда — публикация расчёта отменена")
     sys.exit(0)
 
-r = requests.get(f"{API}/getUpdates", timeout=30)
-if not r.ok:
-    print(f"Не удалось получить обновления: {r.status_code} {r.text}")
-    sys.exit(1)
+updates = fetch_private_updates()
+print(f"Всего обновлений в буфере: {len(updates)}")
 
-updates = r.json().get("result", [])
 last_number = None
 last_phone = None
 
 for u in updates:
     msg = u.get("message") or {}
+    chat = msg.get("chat") or {}
     frm = msg.get("from") or {}
+    # Только личка от организатора
+    if chat.get("type") != "private":
+        continue
     if frm.get("id") != MY_USER_ID:
         continue
     text = (msg.get("text") or "").strip()
@@ -111,11 +140,14 @@ if missing:
         f"Опубликуй расчёт в чат вручную."
     )
     print(f"Не хватает данных: {missing}")
+    # Очищаем буфер, чтобы следующая попытка не цеплялась за старые сообщения
+    clear_updates_buffer(updates)
     sys.exit(0)
 
 if last_number < MIN_PLAYERS:
     print(f"Меньше минимума ({MIN_PLAYERS}) — публикуем отмену")
     send_to_chat(CANCEL_TEXT)
+    clear_updates_buffer(updates)
     sys.exit(0)
 
 cost = game["cost"]
@@ -125,3 +157,6 @@ message = PAYMENT_TEMPLATE.format(
 )
 send_to_chat(message)
 print(f"Расчёт опубликован: {cost} / {last_number} = {per_person} руб, номер {last_phone}")
+
+# Очищаем буфер после успешной публикации
+clear_updates_buffer(updates)
