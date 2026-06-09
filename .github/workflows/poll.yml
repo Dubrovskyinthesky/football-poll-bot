@@ -2,8 +2,8 @@ name: Football Poll
 
 on:
   schedule:
-    - cron: "0 8 * * 2"
-    - cron: "0 8 * * 5"
+    - cron: "37 7 * * 2"
+    - cron: "37 7 * * 5"
   workflow_dispatch:
 
 jobs:
